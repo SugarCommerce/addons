@@ -194,6 +194,36 @@ final class RendererTest extends TestCase {
 	}
 
 	/**
+	 * The caller's `extra` is drawn in the card it is for, under the
+	 * features and above the foot, and in the band for the featured one;
+	 * an add-on it has nothing for gets no box at all.
+	 */
+	public function test_extra_is_drawn_in_its_own_card(): void {
+		$given = [];
+		$html  = Renderer::render(
+			$this->catalogue(),
+			[
+				'extra' => static function ( array $addon ) use ( &$given ): string {
+					$given[] = $addon['id'];
+
+					return match ( $addon['id'] ) {
+						'reviews' => '<form class="licence">Key for ' . esc_html( $addon['name'] ) . '</form>',
+						'pro'     => '<p>Band extra</p>',
+						default   => '  ',
+					};
+				},
+			]
+		);
+
+		$this->assertCount( 9, $given, 'Asked once for every add-on.' );
+		$this->assertSame( 1, substr_count( $html, 'addons-card-extra' ) );
+		$this->assertMatchesRegularExpression( '#Reviews</h3>.*?<div class="addons-card-extra"><form class="licence">Key for Reviews</form></div><footer class="addons-card-foot">#s', $html );
+		$this->assertStringContainsString( '<div class="addons-hero-extra"><p>Band extra</p></div>', $html );
+
+		$this->assertStringNotContainsString( 'addons-card-extra', Renderer::render( $this->catalogue() ) );
+	}
+
+	/**
 	 * Each card's icon is on a tile of its own colour from the palette, the
 	 * same one every time, and no two alike while there are colours to go round.
 	 */

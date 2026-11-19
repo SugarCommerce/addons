@@ -255,6 +255,7 @@ final class ScreenTest extends TestCase {
 						'payouts' => '',
 					];
 				},
+				'extra'      => static fn( array $addon ): string => 'payouts' === $addon['id'] ? '<p>Payouts licence</p>' : '',
 			]
 		);
 
@@ -277,6 +278,8 @@ final class ScreenTest extends TestCase {
 		$this->assertStringContainsString( '<i class="badge-coming_soon">Coming Soon</i>', $html );
 		$this->assertSame( 2, substr_count( $html, '<i class="badge-available">Ready</i>' ) );
 		$this->assertStringContainsString( 'Worked out when drawn: set', $html );
+		$this->assertStringContainsString( '<div class="addons-card-extra"><p>Payouts licence</p></div>', $html );
+		$this->assertSame( 1, substr_count( $html, '-extra"' ) );
 		$this->assertStringContainsString( 'Shop Pro</h2>', $html );
 		$this->assertStringNotContainsString( 'Not Ours', $html );
 	}

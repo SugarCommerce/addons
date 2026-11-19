@@ -415,6 +415,27 @@
 	color: #1a7f4b;
 }
 
+/*
+ * What the screen draws inside a card under its features: a licence key
+ * box, a link to its settings. Boxes take the card's width, never more.
+ */
+.addons-card-extra,
+.addons-hero-extra {
+	margin: 0 0 12px;
+	font-size: 13px;
+}
+
+.addons-card-extra input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]),
+.addons-hero-extra input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]) {
+	box-sizing: border-box;
+	max-width: 100%;
+}
+
+.addons-card-extra p,
+.addons-hero-extra p {
+	margin: 6px 0 0;
+}
+
 /* Pinned to the foot, so a row of cards has its buttons in a line. */
 .addons-card-foot {
 	display: flex;

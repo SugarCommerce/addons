@@ -98,6 +98,9 @@ final class Screen {
 	 *                                            name and `[ 'class' => … ]`, returns markup.
 	 *                                            An icon library's own render function fits.
 	 *                                            Without one, such an icon is the default.
+	 *     @type callable|null        $extra      Draws more inside an add-on's card, under
+	 *                                            its features: given the add-on, returns
+	 *                                            markup it has escaped, or ''.
 	 * }
 	 *
 	 * @return self
@@ -159,6 +162,7 @@ final class Screen {
 			'badge'      => null,
 			'notes'      => [],
 			'icons'      => null,
+			'extra'      => null,
 		];
 
 		$args['handle'] = '' !== (string) $args['handle'] ? (string) $args['handle'] : (string) $args['slug'];
@@ -294,6 +298,7 @@ final class Screen {
 				'badge'    => is_callable( $this->args['badge'] ) ? $this->args['badge'] : null,
 				'notes'    => array_filter( (array) $this->resolve( 'notes' ) ),
 				'icons'    => is_callable( $this->args['icons'] ) ? $this->args['icons'] : null,
+				'extra'    => is_callable( $this->args['extra'] ) ? $this->args['extra'] : null,
 			]
 		);
 	}

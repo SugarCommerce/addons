@@ -103,6 +103,12 @@ final class Renderer {
 	 *                                                                       does not have itself: given the name
 	 *                                                                       and `[ 'class' => … ]`, returns markup,
 	 *                                                                       or '' for one it does not have.
+	 *     @type callable                                          $extra    Draws more inside an add-on's card or
+	 *                                                                       band, under its features -- a licence
+	 *                                                                       key box, a link to its settings: given
+	 *                                                                       the add-on, returns markup, or '' for
+	 *                                                                       nothing. Printed as it is returned, so
+	 *                                                                       it escapes what it prints.
 	 * }
 	 *
 	 * @return string Markup.
@@ -131,6 +137,7 @@ final class Renderer {
 		$palette  = self::palette( (array) ( $args['palette'] ?? [] ) );
 		$badge    = is_callable( $args['badge'] ?? null ) ? $args['badge'] : null;
 		$notes    = array_map( 'strval', (array) ( $args['notes'] ?? [] ) );
+		$extra    = is_callable( $args['extra'] ?? null ) ? $args['extra'] : null;
 		$current  = sanitize_title( (string) ( $args['category'] ?? '' ) );
 		$style    = self::style( (string) ( $args['brand'] ?? '' ), (array) ( $args['band'] ?? [] ) );
 		$featured = [];
@@ -154,11 +161,11 @@ final class Renderer {
 		$colours    = self::colours( array_column( $cards, 'id' ), count( $palette ) );
 		$current    = isset( $categories[ $current ] ) ? $current : '';
 
-		$draw = static function ( array $items ) use ( $labels, $palette, $colours, $badge, $notes ): string {
+		$draw = static function ( array $items ) use ( $labels, $palette, $colours, $badge, $notes, $extra ): string {
 			$html = '';
 
 			foreach ( $items as $addon ) {
-				$html .= self::card( $addon, $labels, $palette[ $colours[ $addon['id'] ] ?? 0 ], $badge, $notes[ $addon['id'] ] ?? '' );
+				$html .= self::card( $addon, $labels, $palette[ $colours[ $addon['id'] ] ?? 0 ], $badge, $notes[ $addon['id'] ] ?? '', self::extra( $extra, $addon ) );
 			}
 
 			return $html;
@@ -175,7 +182,7 @@ final class Renderer {
 		$html .= self::header( $labels, $categories, $current, [] !== $cards );
 
 		foreach ( $featured as $addon ) {
-			$html .= self::hero( $addon, $labels, $badge, $notes[ $addon['id'] ] ?? '' );
+			$html .= self::hero( $addon, $labels, $badge, $notes[ $addon['id'] ] ?? '', self::extra( $extra, $addon ) );
 		}
 
 		// The ones this site has, first and under a heading of their own
@@ -475,11 +482,12 @@ final class Renderer {
 	 * @param array<string, mixed> $labels The words.
 	 * @param callable|null        $badge  Draws a status.
 	 * @param string               $note   A further sentence.
+	 * @param string               $extra  More to draw under its features.
 	 *
 	 * @return string Markup.
 	 * @since 1.0.0
 	 */
-	private static function hero( array $addon, array $labels, ?callable $badge, string $note ): string {
+	private static function hero( array $addon, array $labels, ?callable $badge, string $note, string $extra = '' ): string {
 		$id       = sanitize_html_class( 'addon-' . $addon['id'] );
 		$status   = (string) ( $addon['status'] ?? 'available' );
 		$features = '';
@@ -492,7 +500,7 @@ final class Renderer {
 		$icon   = (string) ( $addon['icon'] ?? '' );
 
 		return sprintf(
-			'<article class="addons-hero is-%1$s" aria-labelledby="%2$s">%10$s<div class="addons-hero-inner"><div class="addons-hero-text"><div class="addons-hero-head"><h2 class="addons-hero-name" id="%2$s">%3$s</h2>%4$s%5$s</div>%6$s%7$s%8$s</div>%9$s</div></article>',
+			'<article class="addons-hero is-%1$s" aria-labelledby="%2$s">%10$s<div class="addons-hero-inner"><div class="addons-hero-text"><div class="addons-hero-head"><h2 class="addons-hero-name" id="%2$s">%3$s</h2>%4$s%5$s</div>%6$s%7$s%8$s%11$s</div>%9$s</div></article>',
 			esc_attr( sanitize_html_class( $status ) ),
 			esc_attr( $id ),
 			esc_html( (string) ( $addon['name'] ?? '' ) ),
@@ -509,7 +517,8 @@ final class Renderer {
 			// an icon: a picture, or no icon, has no mark.
 			! self::is_picture( $icon )
 				? self::icon( $icon, 'addons-hero-mark', Addons::DEFAULT_ICON )
-				: ''
+				: '',
+			'' !== $extra ? '<div class="addons-hero-extra">' . $extra . '</div>' : ''
 		);
 	}
 
@@ -525,11 +534,12 @@ final class Renderer {
 	 * @param array{tint: string, shade: string} $colour Its icon's colours.
 	 * @param callable|null                      $badge  Draws a status.
 	 * @param string                             $note   A further sentence.
+	 * @param string                             $extra  More to draw under its features.
 	 *
 	 * @return string Markup.
 	 * @since 1.0.0
 	 */
-	private static function card( array $addon, array $labels, array $colour, ?callable $badge, string $note ): string {
+	private static function card( array $addon, array $labels, array $colour, ?callable $badge, string $note, string $extra = '' ): string {
 		$id       = sanitize_html_class( 'addon-' . $addon['id'] );
 		$status   = (string) ( $addon['status'] ?? 'available' );
 		$name     = (string) ( $addon['name'] ?? '' );
@@ -560,7 +570,7 @@ final class Renderer {
 			);
 
 		return sprintf(
-			'<article class="addons-card is-%1$s" aria-labelledby="%2$s" data-addons-card data-category="%3$s" data-search="%4$s">%5$s<div class="addons-card-body"><div class="addons-card-top">%6$s%7$s</div><h3 class="addons-card-name" id="%2$s">%8$s%9$s</h3>%10$s%11$s<footer class="addons-card-foot"><span class="addons-card-category">%12$s</span><span class="addons-card-action">%13$s%14$s</span></footer></div></article>',
+			'<article class="addons-card is-%1$s" aria-labelledby="%2$s" data-addons-card data-category="%3$s" data-search="%4$s">%5$s<div class="addons-card-body"><div class="addons-card-top">%6$s%7$s</div><h3 class="addons-card-name" id="%2$s">%8$s%9$s</h3>%10$s%11$s%15$s<footer class="addons-card-foot"><span class="addons-card-category">%12$s</span><span class="addons-card-action">%13$s%14$s</span></footer></div></article>',
 			esc_attr( sanitize_html_class( $status ) ),
 			esc_attr( $id ),
 			esc_attr( sanitize_title( $category ) ),
@@ -576,8 +586,22 @@ final class Renderer {
 			'' !== $features ? '<ul class="addons-card-features">' . $features . '</ul>' : '',
 			esc_html( $category ),
 			'' !== $price ? '<span class="addons-price">' . esc_html( $price ) . '</span>' : '',
-			$action
+			$action,
+			'' !== $extra ? '<div class="addons-card-extra">' . $extra . '</div>' : ''
 		);
+	}
+
+	/**
+	 * What the caller draws inside one add-on's card, if anything.
+	 *
+	 * @param callable|null        $extra The caller's `extra`.
+	 * @param array<string, mixed> $addon The add-on.
+	 *
+	 * @return string Markup; empty for nothing.
+	 * @since 1.0.0
+	 */
+	private static function extra( ?callable $extra, array $addon ): string {
+		return null === $extra ? '' : trim( (string) $extra( $addon ) );
 	}
 
 	/**

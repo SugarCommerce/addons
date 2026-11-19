@@ -105,10 +105,17 @@ Screen::register( 'myshop', [
 	'badge'      => fn( $status, $label ) => my_badge( $status, $label ),
 	'notes'      => fn() => [ 'myshop-pro' => my_pro_sentence() ],
 	'icons'      => [ Icons::class, 'render' ], // draws set:name icons; see Icons
+	'extra'      => fn( array $addon ) => my_licence_box( $addon['id'] ), // more in a card; see below
 ] );
 ```
 
 Any drawing setting can be a closure, worked out when the page is drawn.
+
+`extra` draws more inside an add-on's card (or the band, for the featured
+one), under its features and above its foot: a licence key box, a link to its
+settings. It is given the add-on as the list has it and returns markup, or
+`''` for nothing; what it returns is printed as it is, so it escapes what it
+prints. A box in it takes the card's width at most.
 `{list}_addons_labels` filters the words. The stylesheet and script load on
 that screen only, from the library. `Screen::get( 'myshop' )->url( 'marketing' )`
 links to the page opened on a category.
