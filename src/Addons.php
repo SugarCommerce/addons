@@ -54,42 +54,42 @@ final class Addons {
 	 *
 	 * @since 1.0.0
 	 */
-	public const AVAILABLE = 'available';
+	public const string AVAILABLE = 'available';
 
 	/**
 	 * Not made yet.
 	 *
 	 * @since 1.0.0
 	 */
-	public const COMING_SOON = 'coming_soon';
+	public const string COMING_SOON = 'coming_soon';
 
 	/**
 	 * On this site, and switched off.
 	 *
 	 * @since 1.0.0
 	 */
-	public const INSTALLED = 'installed';
+	public const string INSTALLED = 'installed';
 
 	/**
 	 * On this site and running.
 	 *
 	 * @since 1.0.0
 	 */
-	public const ACTIVE = 'active';
+	public const string ACTIVE = 'active';
 
 	/**
 	 * The icon of an add-on that named none, or one that cannot be used.
 	 *
 	 * @since 1.0.0
 	 */
-	public const DEFAULT_ICON = 'heroicons-outline:puzzle-piece';
+	public const string DEFAULT_ICON = 'heroicons-outline:puzzle-piece';
 
 	/**
 	 * The four things an add-on can be registered as.
 	 *
 	 * @since 1.0.0
 	 */
-	private const STATUSES = [ self::AVAILABLE, self::COMING_SOON, self::INSTALLED, self::ACTIVE ];
+	private const array STATUSES = [ self::AVAILABLE, self::COMING_SOON, self::INSTALLED, self::ACTIVE ];
 
 	/**
 	 * What has been registered, by list and then by id.
