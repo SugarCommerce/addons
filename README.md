@@ -146,24 +146,12 @@ A top-level menu item's `icon` is WordPress's own and takes what
 `add_menu_page()` does: a Dashicons class (`dashicons-admin-plugins`, the
 default), a `data:image/svg+xml` URI or a URL.
 
-## Moving from arraypress/wp-*
+## Security
 
-From `arraypress/wp-register-addons` (`ArrayPress\RegisterAddons`). Every
-class, method, hook and setting keeps its name; it no longer needs
-`wp-composer-assets` or `wp-field-kit`.
-
-| Old | New |
-|---|---|
-| `ArrayPress\RegisterAddons\Addons` | `SugarCommerce\Addons\Addons` |
-| `ArrayPress\RegisterAddons\Screen` | `SugarCommerce\Addons\Screen` |
-| `ArrayPress\RegisterAddons\Renderer` | `SugarCommerce\Addons\Renderer` |
-| `set:name` icons drawn by wp-field-kit when installed | drawn by the `icons` setting: pass the kit's `[ Icons::class, 'render' ]` to keep them |
-| an unknown `set:name` swapped for the default when registered | kept, and drawn as the default when the callable cannot draw it |
-| library icons fell back to Dashicons without the kit | always its own inline SVG |
-| icon class `arraypress-icon` | `addons-icon` (`Renderer::ICON_CLASS`) |
-| stylesheet depends on `dashicons` only without the kit | always depends on `dashicons` |
-| `{list}_register_addons`, `{list}_addons`, `{id}_addons_labels`, every `addons-*` class | unchanged |
-| text domain `arraypress` | text domain `sugarcommerce` |
+* Installs, loads and switches on nothing: an add-on is a card. "Activate" is core's own nonce-signed link, shown only to a user who may activate that plugin
+* Draws the screen only for a user with its capability, and reads the category from the address only as a slug
+* Escapes every name, description, badge, note, link and picture address, and takes colours only as hex
+* Prints what an `extra` or `badge` callable returns as it is -- so the callable escapes what it prints
 
 ## Requirements
 
